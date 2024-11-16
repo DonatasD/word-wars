@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [
     eslintPlugin({
       cache: false,
+      emitWarning: true,
       include: ["./src//*.ts"],
       exclude: [],
     }),

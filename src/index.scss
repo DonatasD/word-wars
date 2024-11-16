@@ -1,4 +1,13 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
 body {
     background: black;
-    overflow:hidden;
+    overflow: hidden;
+}
+
+#images {
+    display: none;
 }

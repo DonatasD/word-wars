@@ -3,14 +3,20 @@ export interface Position {
   y: number;
 }
 
+export interface Velocity {
+  x: number;
+  y: number;
+}
+
 export interface WordStyle {
   fontFamily: string;
   fontSize: number;
-  fontSizeUnits: string;
+  color: string;
 }
 
 export interface Word {
   position: Position;
   text: string;
   style: WordStyle;
+  velocity: Velocity;
 }
