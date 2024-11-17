@@ -1,26 +1,32 @@
-import { Input } from "../input.ts";
+import { InputStore } from "./input/store.ts";
+import { WordStore } from "./words/store.ts";
 
 export class Keyboard {
-  input: Input;
+  inputStore: InputStore;
+  wordStore: WordStore;
 
-  constructor(input: Input) {
-    this.input = input;
+  constructor(inputStore: InputStore, wordStore: WordStore) {
+    this.inputStore = inputStore;
+    this.wordStore = wordStore;
   }
 
   init() {
     window.addEventListener("keypress", (e) => {
-      console.log(e);
+      const value = this.inputStore.getValue();
       switch (e.key) {
         case "Enter": {
-          if (this.input.getValue().length > 0) {
-            this.input.setValue("");
-            // TODO submit
+          if (value.length > 0) {
+            this.inputStore.setValue("");
+            this.wordStore.removeFirstByValue(value);
           }
+          break;
+        }
+        case " ": {
           break;
         }
         default: {
           if (e.key.length === 1) {
-            this.input.setValue(this.input.getValue() + e.key);
+            this.inputStore.setValue(value + e.key.toLowerCase());
           }
         }
       }
@@ -29,8 +35,8 @@ export class Keyboard {
     window.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "Backspace": {
-          const value = this.input.getValue();
-          this.input.setValue(value.substring(0, value.length - 1));
+          const value = this.inputStore.getValue();
+          this.inputStore.setValue(value.substring(0, value.length - 1));
           break;
         }
       }

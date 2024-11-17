@@ -13,10 +13,3 @@ export interface WordStyle {
   fontSize: number;
   color: string;
 }
-
-export interface Word {
-  position: Position;
-  text: string;
-  style: WordStyle;
-  velocity: Velocity;
-}

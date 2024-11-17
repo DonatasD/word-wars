@@ -1,15 +1,20 @@
-import { WordDrawer } from "./wordDrawer.ts";
-import { Input } from "../input.ts";
+import { InputDrawer } from "./input/inputDrawer.ts";
 import { Background } from "./background.ts";
 import { Keyboard } from "./keyboard.ts";
+import { InputStore } from "./input/store.ts";
+import { WordStore } from "./words/store.ts";
+import { WordDrawer } from "./words/drawer.ts";
+import { WordGenerator } from "./words/generator.ts";
+import { FrameLimiter } from "./utils/frameLimiter.ts";
 
 export class Game {
-  canvasGame: HTMLCanvasElement;
-  canvasInput: HTMLCanvasElement;
-  wordDrawer: WordDrawer;
-  input: Input;
-  background: Background;
-  keyboard: Keyboard;
+  private canvasGame: HTMLCanvasElement;
+  private canvasInput: HTMLCanvasElement;
+  private wordDrawer: WordDrawer;
+  private readonly input: InputDrawer;
+  private background: Background;
+  private keyboard: Keyboard;
+  private readonly frameLimiter: FrameLimiter;
 
   constructor() {
     this.canvasGame = <HTMLCanvasElement>(
@@ -18,33 +23,27 @@ export class Game {
     this.canvasInput = <HTMLCanvasElement>(
       document.getElementById("word-wars-user-input")
     );
+    this.frameLimiter = new FrameLimiter();
+    this.initCanvas();
     const gameCtx = this.canvasGame.getContext("2d");
     this.background = new Background(
       gameCtx!,
       <HTMLImageElement>document.getElementById("letofi"),
     );
-    this.wordDrawer = new WordDrawer(gameCtx!);
-    this.wordDrawer.addWord({
-      text: "Meow Meow Meow",
-      position: { x: 0, y: 24 },
-      style: {
-        fontSize: 24,
-        fontFamily: "Serif",
-        color: "#ffffff",
-      },
-      velocity: {
-        x: 5,
-        y: 5,
-      },
-    });
     const inputCtx = this.canvasInput.getContext("2d");
-    this.input = new Input(inputCtx!);
-    this.keyboard = new Keyboard(this.input);
+    const inputStore = new InputStore();
+    this.input = new InputDrawer(inputCtx!, inputStore);
+    const wordGenerator = new WordGenerator(gameCtx!);
+    const wordStore = new WordStore(wordGenerator);
+    this.wordDrawer = new WordDrawer(gameCtx!, wordStore, inputStore);
+    for (let i = 0; i < 10; i++) {
+      wordStore.add();
+    }
+    this.keyboard = new Keyboard(inputStore, wordStore);
     this.init();
   }
 
   private init() {
-    this.initCanvas();
     this.keyboard.init();
 
     window.addEventListener("resize", () => {
@@ -62,10 +61,11 @@ export class Game {
   }
 
   public start() {
-    this.background.draw();
-    this.wordDrawer.moveWords();
-    this.wordDrawer.drawWords();
-    this.input.draw();
+    if (this.frameLimiter.isReady()) {
+      this.background.draw();
+      this.wordDrawer.draw();
+      this.input.draw();
+    }
     requestAnimationFrame(this.start.bind(this));
   }
 }
