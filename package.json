@@ -2,15 +2,19 @@
   "name": "word-wars",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://donatasd.github.io/word-wars/",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy" : "npm run build",
+    "deploy" : "gh-pages -d dist"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "eslint": "^9.14.0",
+    "gh-pages": "^6.2.0",
     "globals": "^15.12.0",
     "prettier": "3.3.3",
     "sass": "^1.80.6",
