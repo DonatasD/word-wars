@@ -1,4 +1,4 @@
-import words from "./words_dictionary.json";
+import { WORDS } from "./dictionary.ts";
 import { Position, Velocity } from "../../types.ts";
 import { FONT_SIZE_DEFAULT, VELOCITY_MAX, VELOCITY_MIN } from "./constants.ts";
 
@@ -8,7 +8,7 @@ export class WordGenerator {
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
-    this.wordList = Object.keys(words);
+    this.wordList = WORDS;
   }
 
   generateWordText() {
