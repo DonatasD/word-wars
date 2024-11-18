@@ -1,5 +1,6 @@
 export class InputStore {
   private value: string;
+  private limit?: number;
 
   constructor(value: string = "") {
     this.value = value;
@@ -9,7 +10,19 @@ export class InputStore {
     return this.value;
   }
 
-  setValue(value: string) {
-    this.value = value;
+  setValue(ctx: CanvasRenderingContext2D, value: string) {
+    if (
+      (this.limit && this.limit < this.value.length) ||
+      this.value.length > value.length
+    ) {
+      this.limit = undefined;
+    }
+    if (!this.limit) {
+      if (ctx.measureText(value).width <= ctx.canvas.width * 0.9) {
+        this.value = value;
+      } else {
+        this.limit = this.value.length;
+      }
+    }
   }
 }

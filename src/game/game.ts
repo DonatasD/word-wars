@@ -6,6 +6,8 @@ import { WordStore } from "./words/store.ts";
 import { WordDrawer } from "./words/drawer.ts";
 import { WordGenerator } from "./words/generator.ts";
 import { FrameLimiter } from "./utils/frameLimiter.ts";
+import { ParticleStore } from "./particles/store.ts";
+import { ParticleDrawer } from "./particles/drawer.ts";
 
 export class Game {
   private canvasGame: HTMLCanvasElement;
@@ -15,6 +17,8 @@ export class Game {
   private background: Background;
   private keyboard: Keyboard;
   private readonly frameLimiter: FrameLimiter;
+  private particleDrawer: ParticleDrawer;
+  private addWords: boolean = true;
 
   constructor() {
     this.canvasGame = <HTMLCanvasElement>(
@@ -25,26 +29,23 @@ export class Game {
     );
     this.frameLimiter = new FrameLimiter();
     this.initCanvas();
-    const gameCtx = this.canvasGame.getContext("2d");
     this.background = new Background(
-      gameCtx!,
       <HTMLImageElement>document.getElementById("letofi"),
     );
-    const inputCtx = this.canvasInput.getContext("2d");
-    const inputStore = new InputStore();
-    this.input = new InputDrawer(inputCtx!, inputStore);
-    const wordGenerator = new WordGenerator(gameCtx!);
+    const wordGenerator = new WordGenerator();
     const wordStore = new WordStore(wordGenerator);
-    this.wordDrawer = new WordDrawer(gameCtx!, wordStore, inputStore);
-    for (let i = 0; i < 10; i++) {
-      wordStore.add();
-    }
-    this.keyboard = new Keyboard(inputStore, wordStore);
+    const inputStore = new InputStore();
+    const particleStore = new ParticleStore();
+    this.input = new InputDrawer(inputStore);
+    this.wordDrawer = new WordDrawer(wordStore, inputStore);
+    this.particleDrawer = new ParticleDrawer(particleStore);
+    this.keyboard = new Keyboard(inputStore, wordStore, particleStore);
     this.init();
   }
 
   private init() {
-    this.keyboard.init();
+    const ctxInput = this.canvasInput.getContext("2d")!;
+    this.keyboard.init(ctxInput);
 
     window.addEventListener("resize", () => {
       this.initCanvas();
@@ -62,9 +63,18 @@ export class Game {
 
   public start() {
     if (this.frameLimiter.isReady()) {
-      this.background.draw();
-      this.wordDrawer.draw();
-      this.input.draw();
+      const ctxGame = this.canvasGame.getContext("2d")!;
+      const ctxInput = this.canvasInput.getContext("2d")!;
+      if (this.addWords) {
+        for (let i = 0; i < 10; i++) {
+          this.wordDrawer.getWordStore().add(ctxGame);
+        }
+        this.addWords = false;
+      }
+      this.background.draw(ctxGame);
+      this.particleDrawer.draw(ctxGame);
+      this.wordDrawer.draw(ctxGame);
+      this.input.draw(ctxInput);
     }
     requestAnimationFrame(this.start.bind(this));
   }

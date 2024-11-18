@@ -3,41 +3,35 @@ import { InputStore } from "../input/store.ts";
 import { COLOR_DEFAULT, COLOR_MATCH } from "./constants.ts";
 
 export class WordDrawer {
-  private ctx: CanvasRenderingContext2D;
   private wordStore: WordStore;
   private inputStore: InputStore;
 
-  constructor(
-    ctx: CanvasRenderingContext2D,
-    wordStore: WordStore,
-    inputStore: InputStore,
-  ) {
-    this.ctx = ctx;
+  constructor(wordStore: WordStore, inputStore: InputStore) {
     this.wordStore = wordStore;
     this.inputStore = inputStore;
   }
 
-  public draw() {
-    this.moveWords();
+  public draw(ctx: CanvasRenderingContext2D) {
+    this.moveWords(ctx);
     this.styleWords();
     this.wordStore.getWords().forEach((word) => {
-      word.draw(this.ctx);
+      word.draw(ctx);
     });
   }
 
-  private moveWords() {
+  private moveWords(ctx: CanvasRenderingContext2D) {
     this.wordStore.getWords().forEach((word) => {
-      const predictedWidth = this.ctx.measureText(word.text).width;
+      const predictedWidth = ctx.measureText(word.text).width;
       const predictedHeigh = word.styles[0].fontSize;
       const endX = word.position.x + predictedWidth + word.velocity.x;
       if (
-        (endX > this.ctx.canvas.width && word.velocity.x > 0) ||
+        (endX > ctx.canvas.width && word.velocity.x > 0) ||
         (word.position.x < 0 && word.velocity.x < 0)
       ) {
         word.velocity.x *= -1;
       }
       if (
-        (word.position.y > this.ctx.canvas.height && word.velocity.y > 0) ||
+        (word.position.y > ctx.canvas.height && word.velocity.y > 0) ||
         (word.position.y < predictedHeigh && word.velocity.y < 0)
       ) {
         word.velocity.y *= -1;
@@ -63,5 +57,9 @@ export class WordDrawer {
         }));
       }
     });
+  }
+
+  getWordStore() {
+    return this.wordStore;
   }
 }

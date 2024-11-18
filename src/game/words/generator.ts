@@ -3,11 +3,9 @@ import { Position, Velocity } from "../../types.ts";
 import { FONT_SIZE_DEFAULT, VELOCITY_MAX, VELOCITY_MIN } from "./constants.ts";
 
 export class WordGenerator {
-  private readonly ctx: CanvasRenderingContext2D;
   private readonly wordList: string[];
 
-  constructor(ctx: CanvasRenderingContext2D) {
-    this.ctx = ctx;
+  constructor() {
     this.wordList = WORDS;
   }
 
@@ -15,10 +13,13 @@ export class WordGenerator {
     return this.wordList[Math.floor(Math.random() * this.wordList.length)];
   }
 
-  generateWordPosition(fontSize = FONT_SIZE_DEFAULT): Position {
+  generateWordPosition(
+    ctx: CanvasRenderingContext2D,
+    fontSize = FONT_SIZE_DEFAULT,
+  ): Position {
     return {
-      x: this.generateRandomInt(0, this.ctx.canvas.width),
-      y: this.generateRandomInt(fontSize, this.ctx.canvas.height - fontSize),
+      x: this.generateRandomInt(0, ctx.canvas.width),
+      y: this.generateRandomInt(fontSize, ctx.canvas.height - fontSize),
     };
   }
 

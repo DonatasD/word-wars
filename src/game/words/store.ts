@@ -15,14 +15,15 @@ export class WordStore {
     this.generator = generator;
   }
 
-  removeFirstByValue(value: string) {
+  removeFirstByValue(value: string): Word[] {
     const index = this.words.findIndex((word) => word.text === value);
     if (index != -1) {
-      this.words.splice(index, 1);
+      return this.words.splice(index, 1);
     }
+    return [];
   }
 
-  add() {
+  add(ctx: CanvasRenderingContext2D) {
     const text = this.generator.generateWordText();
     const styles = Array.from({ length: text.length }, () => ({
       fontSize: FONT_SIZE_DEFAULT,
@@ -30,7 +31,7 @@ export class WordStore {
       fontFamily: FONT_FAMILY_DEFAULT,
     }));
     const word = new Word(
-      this.generator.generateWordPosition(),
+      this.generator.generateWordPosition(ctx),
       text,
       styles,
       this.generator.generateWordVelocity(),

@@ -1,19 +1,11 @@
 export class Background {
-  ctx: CanvasRenderingContext2D;
   img: HTMLImageElement;
 
-  constructor(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
-    this.ctx = ctx;
+  constructor(img: HTMLImageElement) {
     this.img = img;
   }
 
-  draw() {
-    this.ctx.drawImage(
-      this.img,
-      0,
-      0,
-      this.ctx.canvas.width,
-      this.ctx.canvas.height,
-    );
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.drawImage(this.img, 0, 0, ctx.canvas.width, ctx.canvas.height);
   }
 }
