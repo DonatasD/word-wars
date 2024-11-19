@@ -21,11 +21,12 @@ export class WordDrawer {
 
   private moveWords() {
     this.store.wordStore.getWords().forEach((word) => {
-      const predictedWidth = this.context.gameContext.measureText(
-        word.text,
-      ).width;
-      const predictedHeigh = word.styles[0].fontSize;
-      const endX = word.position.x + predictedWidth + word.velocity.x;
+      const measuredText = this.context.gameContext.measureText(word.text);
+      const measureTextWidth = measuredText.width;
+      const measuredTextHeight =
+        measuredText.actualBoundingBoxAscent +
+        measuredText.actualBoundingBoxDescent;
+      const endX = word.position.x + measureTextWidth + word.velocity.x;
       if (
         (endX > this.context.gameContext.canvas.width && word.velocity.x > 0) ||
         (word.position.x < 0 && word.velocity.x < 0)
@@ -35,7 +36,7 @@ export class WordDrawer {
       if (
         (word.position.y > this.context.gameContext.canvas.height &&
           word.velocity.y > 0) ||
-        (word.position.y < predictedHeigh && word.velocity.y < 0)
+        (word.position.y < measuredTextHeight && word.velocity.y < 0)
       ) {
         word.velocity.y *= -1;
       }
