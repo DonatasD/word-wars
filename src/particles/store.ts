@@ -1,5 +1,5 @@
 import { Particle } from "./particle.ts";
-import { Position } from "../../types.ts";
+import { Position } from "../types.ts";
 
 export class ParticleStore {
   private particles: Particle[];

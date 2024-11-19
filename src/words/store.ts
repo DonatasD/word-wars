@@ -2,9 +2,11 @@ import {
   COLOR_DEFAULT,
   FONT_FAMILY_DEFAULT,
   FONT_SIZE_DEFAULT,
+  FONT_UNIT_SIZE_DEFAULT,
 } from "./constants.ts";
 import { WordGenerator } from "./generator.ts";
 import { Word } from "./word.ts";
+import { WordStyle } from "../types.ts";
 
 export class WordStore {
   private readonly generator: WordGenerator;
@@ -23,12 +25,13 @@ export class WordStore {
     return [];
   }
 
-  add(ctx: CanvasRenderingContext2D) {
+  addGenerated(ctx: CanvasRenderingContext2D) {
     const text = this.generator.generateWordText();
-    const styles = Array.from({ length: text.length }, () => ({
+    const styles: WordStyle[] = Array.from({ length: text.length }, () => ({
       fontSize: FONT_SIZE_DEFAULT,
       color: COLOR_DEFAULT,
       fontFamily: FONT_FAMILY_DEFAULT,
+      fontUnitSize: FONT_UNIT_SIZE_DEFAULT,
     }));
     const word = new Word(
       this.generator.generateWordPosition(ctx),
@@ -42,5 +45,9 @@ export class WordStore {
 
   getWords() {
     return this.words;
+  }
+
+  isEmpty(): boolean {
+    return !this.words.length;
   }
 }

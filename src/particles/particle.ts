@@ -1,4 +1,4 @@
-import { Position, Velocity } from "../../types.ts";
+import { Position, Velocity } from "../types.ts";
 import { generateRandomColor } from "../utils/random.ts";
 
 export class Particle {

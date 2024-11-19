@@ -1,4 +1,4 @@
-import { Position, Velocity, WordStyle } from "../../types.ts";
+import { Position, Velocity, WordStyle } from "../types.ts";
 
 export class Word {
   position: Position;
@@ -21,9 +21,9 @@ export class Word {
   draw(ctx: CanvasRenderingContext2D) {
     let letterPositionX = 0;
     for (let i = 0; i < this.text.length; i++) {
-      const { fontSize, fontFamily, color } = this.styles[i];
+      const { fontSize, fontFamily, fontUnitSize, color } = this.styles[i];
       const text = this.text.charAt(i);
-      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.font = `${fontSize}${fontUnitSize} ${fontFamily}`;
       ctx.fillStyle = color;
       ctx.fillText(text, this.position.x + letterPositionX, this.position.y);
       letterPositionX += ctx.measureText(text).width;

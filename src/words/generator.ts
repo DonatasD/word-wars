@@ -1,5 +1,5 @@
 import { WORDS } from "./dictionary.ts";
-import { Position, Velocity } from "../../types.ts";
+import { Position, Velocity } from "../types.ts";
 import { FONT_SIZE_DEFAULT, VELOCITY_MAX, VELOCITY_MIN } from "./constants.ts";
 
 export class WordGenerator {

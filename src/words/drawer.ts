@@ -1,37 +1,40 @@
-import { WordStore } from "./store.ts";
-import { InputStore } from "../input/store.ts";
 import { COLOR_DEFAULT, COLOR_MATCH } from "./constants.ts";
+import { GameStore } from "../game/store.ts";
+import { GameContext } from "../game/context.ts";
 
 export class WordDrawer {
-  private wordStore: WordStore;
-  private inputStore: InputStore;
+  private store: GameStore;
+  private context: GameContext;
 
-  constructor(wordStore: WordStore, inputStore: InputStore) {
-    this.wordStore = wordStore;
-    this.inputStore = inputStore;
+  constructor(store: GameStore, context: GameContext) {
+    this.store = store;
+    this.context = context;
   }
 
-  public draw(ctx: CanvasRenderingContext2D) {
-    this.moveWords(ctx);
+  public draw() {
+    this.moveWords();
     this.styleWords();
-    this.wordStore.getWords().forEach((word) => {
-      word.draw(ctx);
+    this.store.wordStore.getWords().forEach((word) => {
+      word.draw(this.context.gameContext);
     });
   }
 
-  private moveWords(ctx: CanvasRenderingContext2D) {
-    this.wordStore.getWords().forEach((word) => {
-      const predictedWidth = ctx.measureText(word.text).width;
+  private moveWords() {
+    this.store.wordStore.getWords().forEach((word) => {
+      const predictedWidth = this.context.gameContext.measureText(
+        word.text,
+      ).width;
       const predictedHeigh = word.styles[0].fontSize;
       const endX = word.position.x + predictedWidth + word.velocity.x;
       if (
-        (endX > ctx.canvas.width && word.velocity.x > 0) ||
+        (endX > this.context.gameContext.canvas.width && word.velocity.x > 0) ||
         (word.position.x < 0 && word.velocity.x < 0)
       ) {
         word.velocity.x *= -1;
       }
       if (
-        (word.position.y > ctx.canvas.height && word.velocity.y > 0) ||
+        (word.position.y > this.context.gameContext.canvas.height &&
+          word.velocity.y > 0) ||
         (word.position.y < predictedHeigh && word.velocity.y < 0)
       ) {
         word.velocity.y *= -1;
@@ -42,8 +45,8 @@ export class WordDrawer {
   }
 
   private styleWords() {
-    const value = this.inputStore.getValue();
-    this.wordStore.getWords().forEach((word) => {
+    const value = this.store.inputStore.getValue();
+    this.store.wordStore.getWords().forEach((word) => {
       const isMatch = value && word.text.startsWith(value);
       if (isMatch) {
         word.styles = word.styles.map((style, index) => ({
@@ -57,9 +60,5 @@ export class WordDrawer {
         }));
       }
     });
-  }
-
-  getWordStore() {
-    return this.wordStore;
   }
 }

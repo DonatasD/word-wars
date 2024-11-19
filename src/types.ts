@@ -11,5 +11,13 @@ export interface Velocity {
 export interface WordStyle {
   fontFamily: string;
   fontSize: number;
+  fontUnitSize: string;
   color: string;
+}
+
+export enum GameState {
+  Idle,
+  Starting,
+  InProgress,
+  WaitingToStart,
 }

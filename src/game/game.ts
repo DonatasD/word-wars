@@ -1,51 +1,40 @@
-import { InputDrawer } from "./input/inputDrawer.ts";
-import { Background } from "./background.ts";
-import { Keyboard } from "./keyboard.ts";
-import { InputStore } from "./input/store.ts";
-import { WordStore } from "./words/store.ts";
-import { WordDrawer } from "./words/drawer.ts";
-import { WordGenerator } from "./words/generator.ts";
-import { FrameLimiter } from "./utils/frameLimiter.ts";
-import { ParticleStore } from "./particles/store.ts";
-import { ParticleDrawer } from "./particles/drawer.ts";
+import { Input } from "../input/input.ts";
+import { Background } from "../background/background.ts";
+import { Keyboard } from "../keyboard/keyboard.ts";
+import { WordDrawer } from "../words/drawer.ts";
+import { FrameLimiter } from "../utils/frameLimiter.ts";
+import { ParticleDrawer } from "../particles/drawer.ts";
+import { GameState } from "../types.ts";
+import { GameStore } from "./store.ts";
+import { GameContext } from "./context.ts";
 
 export class Game {
-  private canvasGame: HTMLCanvasElement;
-  private canvasInput: HTMLCanvasElement;
-  private wordDrawer: WordDrawer;
-  private readonly input: InputDrawer;
-  private background: Background;
-  private keyboard: Keyboard;
-  private readonly frameLimiter: FrameLimiter;
-  private particleDrawer: ParticleDrawer;
-  private addWords: boolean = true;
+  private readonly store: GameStore;
+  private readonly context: GameContext;
+  private readonly wordDrawer: WordDrawer;
+  private readonly particleDrawer: ParticleDrawer;
+  private readonly input: Input;
+  private readonly background: Background;
+  private readonly keyboard: Keyboard;
+  private readonly frameLimiter: FrameLimiter = new FrameLimiter();
 
-  constructor() {
-    this.canvasGame = <HTMLCanvasElement>(
-      document.getElementById("word-wars-game")
-    );
-    this.canvasInput = <HTMLCanvasElement>(
-      document.getElementById("word-wars-user-input")
-    );
-    this.frameLimiter = new FrameLimiter();
-    this.initCanvas();
-    this.background = new Background(
-      <HTMLImageElement>document.getElementById("letofi"),
-    );
-    const wordGenerator = new WordGenerator();
-    const wordStore = new WordStore(wordGenerator);
-    const inputStore = new InputStore();
-    const particleStore = new ParticleStore();
-    this.input = new InputDrawer(inputStore);
-    this.wordDrawer = new WordDrawer(wordStore, inputStore);
-    this.particleDrawer = new ParticleDrawer(particleStore);
-    this.keyboard = new Keyboard(inputStore, wordStore, particleStore);
-    this.init();
+  constructor(
+    canvasGame: HTMLCanvasElement,
+    canvasInput: HTMLCanvasElement,
+    backgroundImage: HTMLImageElement,
+  ) {
+    this.context = new GameContext(canvasGame, canvasInput, backgroundImage);
+    this.background = new Background(this.context);
+    this.store = new GameStore();
+    this.input = new Input(this.store, this.context);
+    this.wordDrawer = new WordDrawer(this.store, this.context);
+    this.particleDrawer = new ParticleDrawer(this.store, this.context);
+    this.keyboard = new Keyboard(this.store, this.context);
   }
 
-  private init() {
-    const ctxInput = this.canvasInput.getContext("2d")!;
-    this.keyboard.init(ctxInput);
+  public init() {
+    this.initCanvas();
+    this.keyboard.init();
 
     window.addEventListener("resize", () => {
       this.initCanvas();
@@ -53,29 +42,71 @@ export class Game {
   }
 
   private initCanvas() {
-    this.canvasInput.width = window.innerWidth;
-    this.canvasInput.height = 200;
-    this.canvasInput.style.background = "#000000";
-    this.canvasGame.width = window.innerWidth;
-    this.canvasGame.height = window.innerHeight - 200;
-    this.canvasGame.style.background = "#000000";
+    this.context.canvasInput.width = window.innerWidth;
+    this.context.canvasInput.height = 200;
+    this.context.canvasInput.style.background = "#000000";
+    this.context.canvasGame.width = window.innerWidth;
+    this.context.canvasGame.height = window.innerHeight - 200;
+    this.context.canvasGame.style.background = "#000000";
   }
 
-  public start() {
+  start() {
     if (this.frameLimiter.isReady()) {
-      const ctxGame = this.canvasGame.getContext("2d")!;
-      const ctxInput = this.canvasInput.getContext("2d")!;
-      if (this.addWords) {
-        for (let i = 0; i < 10; i++) {
-          this.wordDrawer.getWordStore().add(ctxGame);
+      const ctxGame = this.context.gameContext;
+      switch (this.store.state) {
+        case GameState.Idle: {
+          // TODO add initial screen to start
+          // this.input.draw();
+          // const ctx = this.context.gameContext;
+          // const rect = {
+          //   x: ctx.canvas.width / 2 - 100,
+          //   y: ctx.canvas.height / 2 - 50,
+          //   width: 200,
+          //   height: 100,
+          // };
+          // ctx.beginPath();
+          // ctx.rect(rect.x, rect.y, rect.width, rect.height);
+          // ctx.fillStyle = "rgba(225,225,225,0.5)";
+          // ctx.fill();
+          // ctx.lineWidth = 2;
+          // ctx.strokeStyle = "#000000";
+          // ctx.stroke();
+          // ctx.closePath();
+          // ctx.font = "40pt Kremlin Pro Web";
+          // ctx.fillStyle = "#000000";
+          // ctx.fillText("Start", rect.x + rect.width / 4, rect.y + 64);
+          break;
         }
-        this.addWords = false;
+        case GameState.Starting: {
+          // TODO add timer
+          this.background.draw();
+          this.input.draw();
+          if (this.store.wordStore.isEmpty()) {
+            for (let i = 0; i < this.store.level; i++) {
+              this.store.wordStore.addGenerated(ctxGame);
+            }
+          }
+          this.store.state = GameState.InProgress;
+          break;
+        }
+        case GameState.InProgress: {
+          this.background.draw();
+          this.input.draw();
+          this.particleDrawer.draw();
+          this.wordDrawer.draw();
+          break;
+        }
+        case GameState.WaitingToStart: {
+          // TODO add congratulations screen
+          this.background.draw();
+          this.input.draw();
+          this.store.state = GameState.Starting;
+          break;
+        }
       }
-      this.background.draw(ctxGame);
-      this.particleDrawer.draw(ctxGame);
-      this.wordDrawer.draw(ctxGame);
-      this.input.draw(ctxInput);
     }
     requestAnimationFrame(this.start.bind(this));
   }
+
+  // private draw() {}
 }

@@ -18,7 +18,10 @@ export class InputStore {
       this.limit = undefined;
     }
     if (!this.limit) {
-      if (ctx.measureText(value).width <= ctx.canvas.width * 0.9) {
+      if (
+        this.value.length > value.length ||
+        ctx.measureText(value).width <= ctx.canvas.width * 0.9
+      ) {
         this.value = value;
       } else {
         this.limit = this.value.length;
