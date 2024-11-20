@@ -7,9 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "predeploy" : "npm run build -- --base /word-wars/",
-    "deploy" : "gh-pages -d dist"
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
