@@ -20,6 +20,8 @@ export class Word {
 
   draw(ctx: CanvasRenderingContext2D) {
     let letterPositionX = 0;
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
     for (let i = 0; i < this.text.length; i++) {
       const { fontSize, fontFamily, fontUnitSize, color } = this.styles[i];
       const text = this.text.charAt(i);

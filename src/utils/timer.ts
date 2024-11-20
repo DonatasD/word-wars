@@ -15,4 +15,8 @@ export class Timer {
   reset() {
     this.startTs = undefined;
   }
+
+  isRunning() {
+    return this.startTs !== undefined;
+  }
 }

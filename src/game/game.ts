@@ -8,6 +8,10 @@ import { GameState } from "../types.ts";
 import { GameStore } from "./store.ts";
 import { GameContext } from "./context.ts";
 import { MIN_INPUT_HEIGHT } from "../constants.ts";
+import { StartScreen } from "../screens/startScreen.ts";
+import { GetReadyScreen } from "../screens/getReadyScreen.ts";
+import { Timer } from "../utils/timer.ts";
+import { CongratulationsScreen } from "../screens/congratulationsScreen.ts";
 
 export class Game {
   private readonly store: GameStore;
@@ -16,8 +20,12 @@ export class Game {
   private readonly particleDrawer: ParticleDrawer;
   private readonly input: Input;
   private readonly background: Background;
+  private readonly startScreen: StartScreen;
+  private readonly getReadyScreen: GetReadyScreen;
+  private readonly congratulationsScreen: CongratulationsScreen;
   private readonly keyboard: Keyboard;
   private readonly frameLimiter: FrameLimiter = new FrameLimiter();
+  private readonly timer: Timer = new Timer();
 
   constructor(
     canvasGame: HTMLCanvasElement,
@@ -30,6 +38,9 @@ export class Game {
     this.input = new Input(this.store, this.context);
     this.wordDrawer = new WordDrawer(this.store, this.context);
     this.particleDrawer = new ParticleDrawer(this.store, this.context);
+    this.startScreen = new StartScreen(this.context);
+    this.getReadyScreen = new GetReadyScreen(this.store, this.context);
+    this.congratulationsScreen = new CongratulationsScreen(this.context);
     this.keyboard = new Keyboard(this.store, this.context);
   }
 
@@ -61,38 +72,25 @@ export class Game {
       const ctxGame = this.context.gameContext;
       switch (this.store.state) {
         case GameState.Idle: {
-          // TODO add initial screen to start
-          // this.input.draw();
-          // const ctx = this.context.gameContext;
-          // const rect = {
-          //   x: ctx.canvas.width / 2 - 100,
-          //   y: ctx.canvas.height / 2 - 50,
-          //   width: 200,
-          //   height: 100,
-          // };
-          // ctx.beginPath();
-          // ctx.rect(rect.x, rect.y, rect.width, rect.height);
-          // ctx.fillStyle = "rgba(225,225,225,0.5)";
-          // ctx.fill();
-          // ctx.lineWidth = 2;
-          // ctx.strokeStyle = "#000000";
-          // ctx.stroke();
-          // ctx.closePath();
-          // ctx.font = "40pt Kremlin Pro Web";
-          // ctx.fillStyle = "#000000";
-          // ctx.fillText("Start", rect.x + rect.width / 4, rect.y + 64);
+          this.startScreen.draw();
           break;
         }
         case GameState.Starting: {
-          // TODO add timer
-          this.background.draw();
-          this.input.draw();
-          if (this.store.wordStore.isEmpty()) {
-            for (let i = 0; i < this.store.level; i++) {
-              this.store.wordStore.addGenerated(ctxGame);
+          if (!this.timer.isRunning()) {
+            this.timer.start();
+            this.background.draw();
+            this.input.draw();
+            this.getReadyScreen.draw();
+            if (this.store.wordStore.isEmpty()) {
+              for (let i = 0; i < this.store.level; i++) {
+                this.store.wordStore.addGenerated(ctxGame);
+              }
             }
           }
-          this.store.state = GameState.InProgress;
+          if (this.timer.getTimePassed() > 2000) {
+            this.store.state = GameState.InProgress;
+            this.timer.reset();
+          }
           break;
         }
         case GameState.InProgress: {
@@ -103,10 +101,17 @@ export class Game {
           break;
         }
         case GameState.WaitingToStart: {
-          // TODO add congratulations screen
+          if (!this.timer.isRunning()) {
+            this.timer.start();
+          }
           this.background.draw();
           this.input.draw();
-          this.store.state = GameState.Starting;
+          this.congratulationsScreen.draw();
+          this.particleDrawer.draw();
+          if (this.timer.getTimePassed() > 1000) {
+            this.store.state = GameState.Starting;
+            this.timer.reset();
+          }
           break;
         }
       }

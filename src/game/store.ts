@@ -5,7 +5,7 @@ import { WordGenerator } from "../words/generator.ts";
 import { ParticleStore } from "../particles/store.ts";
 
 export class GameStore {
-  private _state: GameState = GameState.Starting;
+  private _state: GameState = GameState.Idle;
   private _level: number = 1;
   private _wordStore: WordStore = new WordStore(new WordGenerator());
   private _inputStore: InputStore = new InputStore();
