@@ -118,6 +118,4 @@ export class Game {
     }
     requestAnimationFrame(this.start.bind(this));
   }
-
-  // private draw() {}
 }
