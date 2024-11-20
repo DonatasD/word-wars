@@ -32,6 +32,7 @@ export class Input {
   private calcFontSize() {
     const canvasHeight = this.context.canvasInput.height;
     switch (true) {
+      case canvasHeight < CANVAS_HEIGHT_BREAKPOINTS.xs:
       case CANVAS_HEIGHT_BREAKPOINTS.xs >= canvasHeight &&
         canvasHeight < CANVAS_HEIGHT_BREAKPOINTS.sm:
         return FONT_SIZES.xs;
