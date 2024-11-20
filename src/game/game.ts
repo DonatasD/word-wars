@@ -7,6 +7,7 @@ import { ParticleDrawer } from "../particles/drawer.ts";
 import { GameState } from "../types.ts";
 import { GameStore } from "./store.ts";
 import { GameContext } from "./context.ts";
+import { MIN_INPUT_HEIGHT } from "../constants.ts";
 
 export class Game {
   private readonly store: GameStore;
@@ -43,10 +44,15 @@ export class Game {
 
   private initCanvas() {
     this.context.canvasInput.width = window.innerWidth;
-    this.context.canvasInput.height = window.innerHeight * 0.1;
+    const scaledCanvasInputHeight = window.innerHeight * 0.1;
+    this.context.canvasInput.height =
+      scaledCanvasInputHeight >= MIN_INPUT_HEIGHT
+        ? scaledCanvasInputHeight
+        : MIN_INPUT_HEIGHT;
     this.context.canvasInput.style.background = "#000000";
     this.context.canvasGame.width = window.innerWidth;
-    this.context.canvasGame.height = window.innerHeight - this.context.canvasInput.height;
+    this.context.canvasGame.height =
+      window.innerHeight - this.context.canvasInput.height;
     this.context.canvasGame.style.background = "#000000";
   }
 
