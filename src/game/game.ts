@@ -43,10 +43,10 @@ export class Game {
 
   private initCanvas() {
     this.context.canvasInput.width = window.innerWidth;
-    this.context.canvasInput.height = 200;
+    this.context.canvasInput.height = window.innerHeight * 0.1;
     this.context.canvasInput.style.background = "#000000";
     this.context.canvasGame.width = window.innerWidth;
-    this.context.canvasGame.height = window.innerHeight - 200;
+    this.context.canvasGame.height = window.innerHeight - this.context.canvasInput.height;
     this.context.canvasGame.style.background = "#000000";
   }
 
